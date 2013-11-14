@@ -1,0 +1,7 @@
+Add a copy function to get the text of the excuse.
+Implement hashCode for classes that have toString.
+Make spinners be vertical or horizontal.
+Implement tests for all classes.
+Add color chooser for shades.
+Add a property configuration GUI.
+Store properties in a text file: use JForm
