@@ -204,7 +204,12 @@
 
     <target name="run" depends="jar"
             description="runs the application">
-        <java fork="true" jar="${jar.file}" classpathref="dependencies" />
+        <java fork="true" classname="${main.class}">
+            <classpath>
+                <path refid="dependencies" />
+                <path location="${jar.file}" />
+            </classpath>
+        </java>
     </target>
 
     <target name="test" depends="compile,compile-test"
