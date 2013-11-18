@@ -32,7 +32,7 @@
   Enumerates the suites, packages and classes that are to be used by TestNG.
 
   Author:   Joseph Fox-Rabinovitz
-  Version:  1.0.0.0, 20 Sept 2013
+  Version:  1.0.0.0, 12 Nov 2013
   Since:    1.0.0.0
 -->
 
@@ -45,4 +45,3 @@
       </packages>
    </test>
 </suite>
-
