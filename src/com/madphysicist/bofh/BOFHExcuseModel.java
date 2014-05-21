@@ -301,7 +301,6 @@ public class BOFHExcuseModel implements Serializable, Iterable<List<String>>
      * @see ClassLoader#getSystemClassLoader()
      * @since 1.0.0.0
      */
-    @SuppressWarnings("NestedAssignment")
     private static String[][] loadFiles(String[] excuseFiles) throws IOException
     {
         String[][] columnArray = new String[excuseFiles.length][];

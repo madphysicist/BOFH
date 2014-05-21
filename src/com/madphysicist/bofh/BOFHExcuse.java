@@ -121,7 +121,6 @@ public class BOFHExcuse implements Serializable
      * @return an unmodifiable list of the components of this excuse.
      * @since 1.0.0.0
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public List<String> getComponents()
     {
         return components;
