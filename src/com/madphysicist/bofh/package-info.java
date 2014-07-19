@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * package-info.java (Package: com.madphysicist.bofh)
  *
  * Mad Physicist BOFH Excuse Generator Project
  *

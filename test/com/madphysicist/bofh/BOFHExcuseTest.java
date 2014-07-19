@@ -1,5 +1,5 @@
 /*
- * BOFHExcuseTest.java
+ * BOFHExcuseTest.java (Class: com.madphysicist.bofh.BOFHExcuseTest)
  *
  * Mad Physicist BOFH Excuse Generator Project (Tests)
  *
@@ -25,7 +25,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.madphysicist.bofh;
 
 import java.util.Arrays;
