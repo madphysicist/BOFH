@@ -32,59 +32,46 @@
   The main build file for the BOFH project. Type "ant -projecthelp" for a
   listing of the available targets. The project build and documentation can be
   run with the "all" target. Testing is done with TestNG using the "test"
-  target.
+  target. The executable can be run with the "run" target.
+
+  Set the value of the "DEBUG" property near the top of this file to determine
+  whether the library will be compiled in debug mode or not. The "DEBUG-test"
+  property determines the same thing for the test classes. It is normally set
+  to the same value as "DEBUG".
 
   Author:   Joseph Fox-Rabinovitz
-  Version:  1.0.0.0, 13 Nov 2013
-  Since:    1.0.0.0
+  Version:  1.0.0, 13 Nov 2013 - J. Fox-Rabinovitz - Created.
+  Version:  2.0.0, 26 Aug 2014 - J. Fox-Rabinovitz - Updated with more dynamic dependency configuration.
+  Since:    1.0.0
 -->
 
 <project name="BOFH" default="all" basedir=".">
 
-    <description>Builds, documents and demos JForm.</description>
+    <description>Builds, documents, tests and runs the BOFH Excuse Generator.</description>
 
-    <property file="build.properties" />
+    <property name="DEBUG" value="false" />
+    <property name="DEBUG-test" value="${DEBUG}" />
 
-    <path id="dependencies">
-        <pathelement location="${tools.jar.file}" />
-    </path>
-
-    <path id="testng-jars">
-        <pathelement location="${testng.jar.file}" />
-        <pathelement location="${bsh.jar.file}" />
-        <pathelement location="${qdox.jar.file}" />
-    </path>
-
-    <path id="test-dependencies">
-        <path refid="dependencies" />
-        <pathelement location="${classes.dir}" />
-        <path refid="testng-jars" />
-    </path>
+    <import file="config/setup.xml"/>
 
     <!-- Application Build Targets -->
 
-    <target name="clean"
-            description="removes all build artifacts, including documentation and test artifacts">
-        <!-- doc.dir and jar.file are not necessarily in dist.dir -->
-        <delete dir="${doc.dir}" />
-        <delete file="${jar.file}" />
-        <delete dir="${classes.dir}" />
+    <target name="clean" depends="clean-compile,clean-doc,clean-jar,clean-test"
+            description="removes all build artifacts, including test and documentation">
         <delete dir="${build.dir}" />
         <delete dir="${dist.dir}" />
-        <delete dir="${test.doc.dir}" />
-        <delete dir="${test.classes.dir}" />
-        <delete dir="${test.out.dir}" />
+        <delete dir="${jar.dir}" />
     </target>
 
-    <target name="compile"
+    <target name="compile" depends="compile-init"
             description="compiles the application source code into class files">
         <mkdir dir="${classes.dir}" />
-        <javac classpathref="dependencies"
+        <javac classpathref="compile-lib"
                srcdir="${src.dir}"
                destdir="${classes.dir}"
                excludes="**/package-info.java"
                includeantruntime="false"
-               debug="true">
+               debug="${DEBUG}">
             <compilerarg value="-Xlint:all" />
         </javac>
         <copy todir="${classes.dir}">
@@ -111,7 +98,6 @@
 
     <target name="clean-jar"
             description="Removes the application jar file">
-        <!-- Do not delete directory, javadoc may still be there -->
         <delete file="${jar.file}" />
     </target>
 
@@ -120,23 +106,22 @@
         <mkdir dir="${doc.dir}" />
         <javadoc sourcepath="${src.dir}"
                  destdir="${doc.dir}"
-                 classpath="${classes.dir}"
                  access="private"
                  encoding="UTF-8"
                  version="true"
                  author="true"
-                 windowtitle="BOFH Project - Application Developer Documentation"
+                 windowtitle="BOFH Excuse Generator Project - Application Developer Documentation"
                  source="1.7"
                  serialwarn="true"
                  use="true">
-            <doctitle><![CDATA[BOFH Project<br />API Specification]]></doctitle>
+            <doctitle><![CDATA[BOFH Excuse Generator Project<br />API Specification]]></doctitle>
             <header><![CDATA[<b>BOFH Project<br />Application</b>]]></header>
             <footer><![CDATA[<b>BOFH Project<br />Application</b>]]></footer>
             <bottom><![CDATA[Copyright &copy; 2013 by Joseph Fox-Rabinovitz under the MIT License]]></bottom>
             <link href="http://docs.oracle.com/javase/7/docs/api/" offline="false" />
-            <sourcepath location="${src.dir}" />
+            <!-- TODO: Include stable link to JTools javadocs /-->
             <classpath>
-                <path refid="dependencies" />
+                <path refid="compile-lib" />
                 <path location="${classes.dir}" />
             </classpath>
         </javadoc>
@@ -147,17 +132,62 @@
         <delete dir="${doc.dir}" />
     </target>
 
+    <target name="doc-jar" depends="doc"
+            description="packages the library javadoc into a jar file">
+        <jar destfile="${doc.jar}"
+             basedir="${doc.dir}"
+             excludes="" />
+    </target>
+
+    <target name="clean-doc-jar"
+            description="removes the packaged library javadoc">
+        <delete file="${doc.jar}" />
+    </target>
+
+    <target name="src-jar"
+            description="packages the library source code into a jar file">
+        <jar destfile="${src.jar}"
+             basedir="${src.dir}"
+             excludes="" />
+    </target>
+
+    <target name="clean-src-jar"
+            description="removes the packaged library source code">
+        <delete file="${lib.doc.jar}" />
+    </target>
+
+    <!-- Application Run Target -->
+
+    <target name="run" depends="jar"
+            description="runs the application">
+        <java fork="true" classname="${main.class}">
+            <classpath>
+                <path refid="compile-libs" />
+                <path location="${jar.file}" />
+            </classpath>
+        </java>
+    </target>
+
     <!-- Test Build Targets -->
 
-    <target name="compile-test" depends="compile"
+    <target name="clean-test" depends="clean-testng">
+        <delete dir="${test.classes.dir}" />
+        <delete dir="${test.doc.dir}" />
+        <delete dir="${test.reports.dir}" />
+    </target>
+
+    <target name="compile-test" depends="compile,compile-test-init"
             description="compiles the test source code into class files">
         <mkdir dir="${test.classes.dir}" />
 
-        <javac srcdir="${test.src.dir}" destdir="${test.classes.dir}" debug="true"
-               excludes="**/package-info.java" includeantruntime="false"
-               classpathref="test-dependencies" />
+        <javac srcdir="${test.src.dir}"
+               destdir="${test.classes.dir}"
+               debug="${DEBUG-test}"
+               excludes="**/package-info.java"
+               includeantruntime="false"
+               classpathref="compile-test-lib" />
         <copy todir="${test.classes.dir}">
-            <fileset dir="${test.src.dir}" excludes="**/*.java"/>
+            <fileset dir="${test.src.dir}" excludes="**/*.java,**/*.xml"/>
         </copy>
 
     </target>
@@ -167,77 +197,73 @@
         <delete dir="${test.classes.dir}" />
     </target>
 
-    <target name="doc-test" depends="compile-test"
+    <target name="doc-test" depends="compile,compile-test,doc"
             description="creates javadoc documentation of the test classes">
         <mkdir dir="${test.doc.dir}" />
         <javadoc sourcepath="${test.src.dir}"
                  destdir="${test.doc.dir}"
-                 classpath="${test.classes.dir}"
                  access="private"
                  encoding="UTF-8"
                  version="true"
                  author="true"
-                 windowtitle="BOFH Project - Test Suite Developer Documentation"
+                 windowtitle="BOFH Excuse Generator Project - Test Suite Developer Documentation"
                  source="1.7"
                  serialwarn="true"
                  use="true">
-            <doctitle><![CDATA[BOFH Project<br />API Specification]]></doctitle>
+            <doctitle><![CDATA[BOFH Excuse Generator Project<br />API Specification]]></doctitle>
             <header><![CDATA[<b>BOFH Project<br />Test Suite</b>]]></header>
             <footer><![CDATA[<b>BOFH Project<br />Test Suite</b>]]></footer>
             <bottom><![CDATA[Copyright &copy; 2013 by Joseph Fox-Rabinovitz under the MIT License]]></bottom>
             <link href="http://docs.oracle.com/javase/7/docs/api/" offline="false" />
-            <link href="../javadoc/" />
-            <sourcepath location="${test.src.dir}" />
+            <link href="http://testng.org/javadoc/" offline="false" />
+            <link href="../../dist/javadoc/" />
+            <!-- TODO: Include stable link to JTools javadocs /-->
             <classpath>
-                <path refid="test-dependencies" />
+                <path refid="compile-test-lib" />
                 <path location="${test.classes.dir}" />
             </classpath>
         </javadoc>
     </target>
 
     <target name="clean-doc-test"
-            description="removes javadoc documentation of the the test classes">
+            description="removes javadoc documentation of the test classes">
         <delete dir="${test.doc.dir}" />
     </target>
 
-    <!-- Run Targets -->
+    <!-- Test Run Targets -->
 
-    <target name="run" depends="jar"
-            description="runs the application">
-        <java fork="true" classname="${main.class}">
-            <classpath>
-                <path refid="dependencies" />
-                <path location="${jar.file}" />
-            </classpath>
-        </java>
-    </target>
-
-    <target name="test" depends="compile,compile-test"
+    <target name="testng" depends="compile-test,testng-init"
             description="runs a TestNG unit test suite on the application classes">
 
-        <taskdef resource="testngtasks" classpathref="testng-jars" />
-        
-        <mkdir dir="${test.out.dir}" />
-        <testng outputdir="${test.out.dir}">
-            <classpath>
-                <path refid="test-dependencies" />
-                <path location="${test.classes.dir}" />
-            </classpath>
+        <mkdir dir="${test.testng.out.dir}" />
+        <testng outputdir="${test.testng.out.dir}" classpathref="test-lib">
             <xmlfileset file="${test.testng.file}" />
         </testng>
     </target>
 
-    <target name="clean-test" description="removes TestNG artifacts">
-        <delete dir="${test.out.dir}" />
+    <target name="testng-failed" if="test.testng.failed.available"
+            depends="compile-test,testng-init,testng-failed-init"
+            description="reruns only the failed TestNG unit tests from a pervious run">
+        <testng outputdir="${test.testng.out.dir}" classpathref="test-lib">
+            <xmlfileset file="${test.testng.failed.xml.file}" />
+        </testng>
+    </target>
+
+    <target name="clean-testng" description="removes TestNG artifacts">
+        <delete file="${test.testng.failed.xml.file}" />
+        <delete dir="${test.testng.out.dir}" />
     </target>
 
     <!-- Meta-Targets -->
 
-    <target name="rebuild" depends="clean,jar"
-            description="rebuilds the jar from scratch after a clean" />
+    <target name="rebuild" depends="clean-compile,clean-jar,jar"
+            description="rebuilds the application jar from scratch after a clean" />
 
-    <target name="all" depends="clean,jar,doc"
-            description="cleans the project and creates all build, distribution and documentation artifacts" />
+    <target name="all" depends="clean,jar,doc-jar,src-jar"
+            description="cleans the project and creates all build, distribution, source, and documentation artifacts" />
+
+    <target name="test" depends="testng"
+            description="creates reports from the unit tests (static and coverage are coming)" />
 
 </project>
 

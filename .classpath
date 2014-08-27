@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JTools"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TestNG"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="lib" path="lib/madphysicist-JTools.jar"/>
+	<classpathentry kind="output" path="build/eclipse"/>
 </classpath>

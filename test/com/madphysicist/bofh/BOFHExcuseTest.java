@@ -1,7 +1,7 @@
 /*
- * BOFHExcuseTest.java (Class: com.madphysicist.bofh.BOFHExcuseTest)
+ * BOFHExcuseTest.java (TestClass: com.madphysicist.bofh.BOFHExcuseTest)
  *
- * Mad Physicist BOFH Excuse Generator Project (Tests)
+ * Mad Physicist BOFH Excuse Generator Project
  *
  * The MIT License (MIT)
  *
@@ -36,8 +36,8 @@ import org.testng.annotations.Test;
  * This class tests the methods of {@code BOFHExcuse}.
  *
  * @author Joseph Fox-Rabinovitz
- * @version 1.0.0.0, 11 Feb 2013
- * @since 1.0.0.0
+ * @version 1.0.0, 11 Feb 2013 - J. Fox-Rabinovitz - Initial Coding.
+ * @since 1.0.0
  */
 public class BOFHExcuseTest
 {

@@ -32,8 +32,8 @@
   Enumerates the suites, packages and classes that are to be used by TestNG.
 
   Author:   Joseph Fox-Rabinovitz
-  Version:  1.0.0.0, 12 Nov 2013
-  Since:    1.0.0.0
+  Version:  1.0.0, 12 Nov 2013 - J. Fox-Rabinovitz - Created.
+  Since:    1.0.0
 -->
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
