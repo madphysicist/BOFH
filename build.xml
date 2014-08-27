@@ -153,7 +153,7 @@
 
     <target name="clean-src-jar"
             description="removes the packaged library source code">
-        <delete file="${lib.doc.jar}" />
+        <delete file="${doc.jar}" />
     </target>
 
     <!-- Application Run Target -->
