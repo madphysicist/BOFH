@@ -1,0 +1,10 @@
+#!/bin/bash
+JAVA_SHARE=/usr/local/share/java
+
+BOFH_JAR="${JAVA_SHARE}/madphysicist-BOFH.jar"
+JTOOLS_JAR="${JAVA_SHARE}/madphysicist-JTools.jar"
+
+MAIN_CLASS=com.madphysicist.bofh.BOFHMain
+
+java -cp "${JTOOLS_JAR}":"${BOFH_JAR}" "${MAIN_CLASS}"
+

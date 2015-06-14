@@ -35,6 +35,7 @@
 ##
 ## Author:   Joseph Fox-Rabinovitz
 ## Version:  1.0.0, 03 Feb 2014: Joseph Fox-Rabinovitz: Created.
+## Version:  1.0.1, 12 Jun 2015: Joseph Fox-Rabinovitz: Added exec support.
 ##
 
 PROG="ln -s"
@@ -42,30 +43,38 @@ PROG="ln -s"
 ISRC=/usr/local/src
 IDOC=/usr/local/share/doc
 IJAR=/usr/local/share/java
+IBIN=/usr/local/bin
 
+EXE=bofh
 BASE=madphysicist-BOFH
 JEXT=.jar
 
 # Do not export!
 function inst() {
     INSTALL_DIR="$1"
-    FILE_SUFFIX="$2"
-    FILE_NAME="${BASE}${FILE_SUFFIX}${JEXT}"
+    FROM_FILE="$2"
+    FILE_NAME="$(basename "${FROM_FILE}")"
     TO_FILE="${INSTALL_DIR}/${FILE_NAME}"
     if [ -f "${TO_FILE}" ]
     then
         echo "Removing previous version from \"${TO_FILE}\""
         rm "${TO_FILE}"
     fi
-    FROM_FILE="$(pwd)/dist/${FILE_NAME}"
     echo "Installing \"${FROM_FILE}\" into \"${INSTALL_DIR}\""
-    ${PROG} "${FROM_FILE}" "${INSTALL_DIR}"
+    mkdir -p "${INSTALL_DIR}"
+    ${PROG} "$(pwd)/${FROM_FILE}" "${INSTALL_DIR}"
+}
+
+function inst_jar() {
+    INSTALL_DIR="$1"
+    FILE_SUFFIX="$2"
+    FILE_NAME="dist/${BASE}${FILE_SUFFIX}${JEXT}"
+    inst "${INSTALL_DIR}" "${FILE_NAME}"
 }
 
 function uinst() {
     INSTALL_DIR="$1"
-    FILE_SUFFIX="$2"
-    FILE_NAME="${BASE}${FILE_SUFFIX}${JEXT}"
+    FILE_NAME="$2"
     TO_FILE="${INSTALL_DIR}/${FILE_NAME}"
     if [ -f "${TO_FILE}" ]
     then
@@ -76,11 +85,19 @@ function uinst() {
     fi
 }
 
+function uinst_jar() {
+    INSTALL_DIR="$1"
+    FILE_SUFFIX="$2"
+    FILE_NAME="${BASE}${FILE_SUFFIX}${JEXT}"
+    uinst "${INSTALL_DIR}" "${FILE_NAME}"
+}
+
 if [ ${#} -eq 1 -a "${1}" == "-u" ]
 then    
-    uinst "${ISRC}" "-sources"
-    uinst "${IDOC}" "-javadoc"
-    uinst "${IJAR}" ""
+    uinst_jar "${ISRC}" "-sources"
+    uinst_jar "${IDOC}" "-javadoc"
+    uinst_jar "${IJAR}" ""
+    uinst "${IBIN}" "${EXE}"
 elif [ ${#} -ne 0 ]
 then
     echo "Usage: ${0} [-u]"
@@ -88,8 +105,9 @@ then
     echo "    -u uninstalls ${BASE}"
     exit 1
 else
-    inst "${ISRC}" "-sources"
-    inst "${IDOC}" "-javadoc"
-    inst "${IJAR}" ""
+    inst_jar "${ISRC}" "-sources"
+    inst_jar "${IDOC}" "-javadoc"
+    inst_jar "${IJAR}" ""
+    inst "${IBIN}" "${EXE}"
 fi
 
